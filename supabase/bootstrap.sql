@@ -19,6 +19,7 @@ declare
 begin
   if auth.uid() is null then raise exception 'Authentication required'; end if;
   if length(trim(org_name)) < 2 then raise exception 'Organization name is required'; end if;
+  if trim(org_type) not in ('School','Office / Company','Restaurant','NGO / Nonprofit','Retail / Shop','Hotel','Clinic','Warehouse','Service Business','Other') then raise exception 'Unsupported organization type'; end if;
 
   insert into public.organizations(name,slug,organization_type,currency,timezone)
   values (
@@ -62,6 +63,14 @@ begin
     insert into public.organization_modules(organization_id,module_key) values(new_org,'ngo'),(new_org,'customers');
   elsif org_type='Retail / Shop' then
     insert into public.organization_modules(organization_id,module_key) values(new_org,'retail'),(new_org,'inventory'),(new_org,'customers');
+  elsif org_type='Hotel' then
+    insert into public.organization_modules(organization_id,module_key) values(new_org,'hotel'),(new_org,'inventory'),(new_org,'customers');
+  elsif org_type='Clinic' then
+    insert into public.organization_modules(organization_id,module_key) values(new_org,'clinic'),(new_org,'inventory'),(new_org,'customers');
+  elsif org_type='Warehouse' then
+    insert into public.organization_modules(organization_id,module_key) values(new_org,'warehouse'),(new_org,'inventory'),(new_org,'customers');
+  elsif org_type='Service Business' then
+    insert into public.organization_modules(organization_id,module_key) values(new_org,'service-business'),(new_org,'customers');
   else
     insert into public.organization_modules(organization_id,module_key) values(new_org,'customers');
   end if;
