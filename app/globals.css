@@ -18,3 +18,10 @@ label{display:grid;gap:7px;font-size:13px;font-weight:700;color:#344054}input,se
 .metric-card{min-height:112px}
 @media(max-width:900px){.workspace-strip{grid-template-columns:1fr 1fr}.workspace-modules{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.workspace-header{align-items:flex-start;flex-direction:column}.workspace-actions{width:100%}.workspace-strip{grid-template-columns:1fr 1fr}.workspace-modules{grid-template-columns:1fr}}
+
+.workspace-switcher{display:grid;gap:14px;margin-bottom:22px}
+.org-switch-list{display:flex;gap:8px;flex-wrap:wrap}
+.org-switch{display:flex;align-items:center;gap:9px;border:1px solid #e1e7ef;border-radius:10px;padding:9px 12px;background:#fff}
+.org-switch.active{border-color:#1769e0;background:#f4f8ff}
+.org-switch strong{display:block;font-size:13px}.org-switch small{display:block;color:#718096;font-size:11px;margin-top:2px}
+.org-switch-avatar{width:28px;height:28px;border-radius:8px;background:#eef3f9;display:grid;place-items:center;font-size:12px;font-weight:800}
