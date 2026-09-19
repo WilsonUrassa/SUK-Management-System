@@ -49,6 +49,8 @@ export default async function Dashboard({searchParams}:{searchParams:Promise<{or
       </div>
     </div>
 
+    {orgs && orgs.length>1&&<section className="card workspace-switcher"><div><div className="section-title">Your organizations</div><div className="muted">Switch between organizations you manage.</div></div><div className="org-switch-list">{orgs.map((o:{id:string,name:string,organization_type:string})=><Link className={o.id===selected.id?"org-switch active":"org-switch"} href={"/dashboard?org="+o.id} key={o.id}><span className="org-switch-avatar">{o.name.slice(0,1).toUpperCase()}</span><span><strong>{o.name}</strong><small>{o.organization_type}</small></span></Link>)}</div></section>}
+
     <div className="workspace-strip">
       <div><span>Active branch</span><strong>{branches?.[0]?.name || "Main Branch"}</strong></div>
       <div><span>Modules</span><strong>{enabled?.length || 0} active</strong></div>
