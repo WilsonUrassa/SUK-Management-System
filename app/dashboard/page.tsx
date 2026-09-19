@@ -25,7 +25,7 @@ export default async function Dashboard({searchParams}:{searchParams:Promise<{or
   const {data:modules}=await supabase.from("organization_modules").select("module_key").eq("organization_id",selected.id).eq("enabled",true);
 
   return <main className="main" style={{marginLeft:0,width:"100%",maxWidth:1180,margin:"0 auto"}}>
-    <div className="topbar"><div><div className="eyebrow">Workspace</div><h1 className="title">{selected.name}</h1><div className="subtitle">{selected.organization_type} • {selected.currency} • {selected.timezone}</div></div><div style={{display:"flex",gap:8}}><Link className="button secondary" href="/onboarding">New organization</Link><Link className="button secondary" href="/login">Account</Link></div></div>
+    <div className="topbar"><div><div className="eyebrow">Workspace</div><h1 className="title">{selected.name}</h1><div className="subtitle">{selected.organization_type} • {selected.currency} • {selected.timezone}</div></div><div style={{display:"flex",gap:8}}><Link className="button secondary" href="/onboarding">New organization</Link><form action="/auth/signout" method="post"><button className="button secondary" type="submit">Sign out</button></form></div></div>
     <div className="grid">
       <div className="card"><div className="muted">Organization</div><div className="metric">1</div></div>
       <div className="card"><div className="muted">Branches</div><div className="metric">{branches?.length ?? 0}</div></div>
