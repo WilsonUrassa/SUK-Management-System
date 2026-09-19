@@ -8,10 +8,10 @@ const configs:Record<string,{table:string;title:string;columns:string[];links:st
  office:{table:"office_tasks",title:"Tasks",columns:["title","status","priority","due_date"],links:["Add task"]},
  ngo:{table:"ngo_programs",title:"Programs",columns:["name","location","status","start_date"],links:["Add program"]},
  retail:{table:"retail_sales",title:"Sales",columns:["total_amount","payment_method","sale_date"],links:["Record sale"]},
- hotel:{table:"people",title:"Guests",columns:["full_name","email","phone","is_active"],links:["Add guest"]},
- clinic:{table:"people",title:"Patients",columns:["full_name","email","phone","is_active"],links:["Add patient"]},
- warehouse:{table:"inventory_items",title:"Stock items",columns:["name","sku","quantity","unit_cost"],links:["Add stock item"]},
- "service-business":{table:"people",title:"Clients",columns:["full_name","email","phone","is_active"],links:["Add client"]}
+ hotel:{table:"hotel_bookings",title:"Bookings",columns:["check_in","check_out","status","total_amount"],links:["Add booking"]},
+ clinic:{table:"clinic_appointments",title:"Appointments",columns:["provider_name","appointment_at","status"],links:["Add appointment"]},
+ warehouse:{table:"warehouse_movements",title:"Stock movements",columns:["movement_type","quantity","reference","movement_at"],links:["Record movement"]},
+ "service-business":{table:"service_jobs",title:"Jobs",columns:["title","status","scheduled_at","amount"],links:["Add job"]}
 };
 
 export default async function ModuleOperation({params,searchParams}:{params:Promise<{module:string}>,searchParams:Promise<{org?:string}>}) {
