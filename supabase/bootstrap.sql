@@ -16,16 +16,26 @@ declare
   new_member uuid;
   owner_role uuid;
   module_key text;
+  base_slug text;
+  candidate_slug text;
+  slug_suffix integer := 1;
 begin
   if auth.uid() is null then raise exception 'Authentication required'; end if;
   if length(trim(org_name)) < 2 then raise exception 'Organization name is required'; end if;
   if trim(org_type) not in ('School','Office / Company','Restaurant','NGO / Nonprofit','Retail / Shop','Hotel','Clinic','Warehouse','Service Business','Other') then raise exception 'Unsupported organization type'; end if;
 
+  base_slug := left(trim(both '-' from regexp_replace(lower(trim(org_name)),'[^a-z0-9]+','-','g')),50);
+  if base_slug = '' then base_slug := 'organization'; end if;
+  candidate_slug := base_slug;
+  while exists(select 1 from public.organizations where slug=candidate_slug) loop
+    candidate_slug := left(base_slug, 50) || '-' || slug_suffix;
+    slug_suffix := slug_suffix + 1;
+  end loop;
+
   insert into public.organizations(name,slug,organization_type,currency,timezone)
   values (
-    trim(org_name),
-    left(regexp_replace(lower(trim(org_name)),'[^a-z0-9]+','-','g'),60),
-    trim(org_type), coalesce(nullif(trim(org_currency),''),'TZS'),
+    trim(org_name), candidate_slug, trim(org_type),
+    coalesce(nullif(trim(org_currency),''),'TZS'),
     coalesce(nullif(trim(org_timezone),''),'Africa/Dar_es_Salaam')
   )
   returning id into new_org;
