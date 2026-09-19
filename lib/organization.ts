@@ -18,10 +18,10 @@ export function defaultModules(type: string) {
     Restaurant: ["restaurant","inventory","customers"],
     "NGO / Nonprofit": ["ngo","customers"],
     "Retail / Shop": ["retail","inventory","customers"],
-    Hotel: ["inventory","customers"],
-    Clinic: ["inventory","customers"],
-    Warehouse: ["inventory","customers"],
-    "Service Business": ["customers"],
+    Hotel: ["hotel","inventory","customers"],
+    Clinic: ["clinic","inventory","customers"],
+    Warehouse: ["warehouse","inventory","customers"],
+    "Service Business": ["service-business","customers"],
     Other: ["customers"]
   };
   return Array.from(new Set([...common, ...(map[type] ?? map.Other)]));
