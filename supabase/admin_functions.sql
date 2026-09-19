@@ -98,3 +98,29 @@ end;
 $$;
 revoke all on function public.set_branch_status(uuid,uuid,boolean) from public;
 grant execute on function public.set_branch_status(uuid,uuid,boolean) to authenticated;
+
+
+create or replace function public.write_audit_log(
+  org_id uuid,
+  action_name text,
+  entity_name text default null,
+  entity_uuid uuid default null,
+  details jsonb default '{}'::jsonb
+)
+returns uuid
+language plpgsql security definer set search_path=public
+as $$
+declare audit_id uuid;
+begin
+  if auth.uid() is null or not public.is_org_member(org_id) then
+    raise exception 'Organization access denied';
+  end if;
+  if length(trim(action_name)) < 2 then raise exception 'Audit action is required'; end if;
+  insert into public.audit_logs(organization_id,user_id,action,entity_type,entity_id,metadata)
+  values(org_id,auth.uid(),trim(action_name),nullif(trim(entity_name),''),entity_uuid,coalesce(details,'{}'::jsonb))
+  returning id into audit_id;
+  return audit_id;
+end;
+$$;
+revoke all on function public.write_audit_log(uuid,text,text,uuid,jsonb) from public;
+grant execute on function public.write_audit_log(uuid,text,text,uuid,jsonb) to authenticated;
