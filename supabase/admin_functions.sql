@@ -56,3 +56,45 @@ end;
 $$;
 revoke all on function public.update_organization(uuid,text,text,text) from public;
 grant execute on function public.update_organization(uuid,text,text,text) to authenticated;
+
+
+create or replace function public.create_branch(
+  org_id uuid,
+  branch_name text,
+  branch_code text default null,
+  branch_address text default null,
+  branch_phone text default null,
+  branch_email text default null
+)
+returns uuid
+language plpgsql security definer set search_path=public
+as $$
+declare bid uuid;
+begin
+  if not public.has_org_role(org_id,'Owner') then raise exception 'Owner access required'; end if;
+  if length(trim(branch_name)) < 2 then raise exception 'Branch name is required'; end if;
+  insert into public.branches(organization_id,name,code,address,phone,email)
+  values(
+    org_id,trim(branch_name),nullif(trim(branch_code),''),
+    nullif(trim(branch_address),''),nullif(trim(branch_phone),''),
+    nullif(trim(branch_email),'')
+  )
+  returning id into bid;
+  return bid;
+end;
+$$;
+revoke all on function public.create_branch(uuid,text,text,text,text,text) from public;
+grant execute on function public.create_branch(uuid,text,text,text,text,text) to authenticated;
+
+create or replace function public.set_branch_status(org_id uuid, branch_uuid uuid, active boolean)
+returns void
+language plpgsql security definer set search_path=public
+as $$
+begin
+  if not public.has_org_role(org_id,'Owner') then raise exception 'Owner access required'; end if;
+  update public.branches set is_active=active where id=branch_uuid and organization_id=org_id;
+  if not found then raise exception 'Branch does not belong to organization'; end if;
+end;
+$$;
+revoke all on function public.set_branch_status(uuid,uuid,boolean) from public;
+grant execute on function public.set_branch_status(uuid,uuid,boolean) to authenticated;
