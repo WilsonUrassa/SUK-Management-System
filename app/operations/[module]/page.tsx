@@ -1,11 +1,24 @@
 import Link from "next/link";
 import { createClient } from "../../../lib/supabase/server";
 import { modules } from "../../../lib/modules";
+
+const configs:Record<string,{table:string;title:string;columns:string[];links:string[]}>={
+ school:{table:"school_students",title:"Students",columns:["admission_no","class_name","guardian_name","status"],links:["Add student"]},
+ restaurant:{table:"restaurant_menu_items",title:"Menu items",columns:["name","category","price","is_available"],links:["Add menu item"]},
+ office:{table:"office_tasks",title:"Tasks",columns:["title","status","priority","due_date"],links:["Add task"]},
+ ngo:{table:"ngo_programs",title:"Programs",columns:["name","location","status","start_date"],links:["Add program"]},
+ retail:{table:"retail_sales",title:"Sales",columns:["total_amount","payment_method","sale_date"],links:["Record sale"]},
+ hotel:{table:"people",title:"Guests",columns:["full_name","email","phone","is_active"],links:["Add guest"]},
+ clinic:{table:"people",title:"Patients",columns:["full_name","email","phone","is_active"],links:["Add patient"]},
+ warehouse:{table:"inventory_items",title:"Stock items",columns:["name","sku","quantity","unit_cost"],links:["Add stock item"]},
+ "service-business":{table:"people",title:"Clients",columns:["full_name","email","phone","is_active"],links:["Add client"]}
+};
+
 export default async function ModuleOperation({params,searchParams}:{params:Promise<{module:string}>,searchParams:Promise<{org?:string}>}) {
- const [p,q]=await Promise.all([params,searchParams]),s=await createClient(),{data:orgs}=await s.rpc("my_organizations"),o=orgs?.find((x:{id:string})=>x.id===q.org)||orgs?.[0],m=modules.find(x=>x.id===p.module);
- if(!o||!m)return <main className="main"><div className="card"><h1 className="title">Module not found</h1><Link className="button" href="/dashboard">Dashboard</Link></div></main>;
+ const [p,q]=await Promise.all([params,searchParams]),s=await createClient(),{data:orgs}=await s.rpc("my_organizations"),o=orgs?.find((x:{id:string})=>x.id===q.org)||orgs?.[0],m=modules.find(x=>x.id===p.module),cfg=configs[p.module];
+ if(!o||!m||!cfg)return <main className="main"><div className="card"><h1 className="title">Module not found</h1><Link className="button" href="/dashboard">Dashboard</Link></div></main>;
  const {data:enabled}=await s.from("organization_modules").select("module_key").eq("organization_id",o.id).eq("module_key",m.id).eq("enabled",true).maybeSingle();
- if(!enabled)return <main className="main"><div className="card"><h1 className="title">Module not enabled</h1><p className="subtitle">Enable this module from organization settings.</p><Link className="button" href={"/settings?org="+o.id}>Settings</Link></div></main>;
- const descriptions:Record<string,string>={school:"Students, teachers, classes, subjects, attendance, exams and fees.",restaurant:"Tables, menu, orders, kitchen, cashier and restaurant inventory.",office:"Employees, departments, projects, tasks, meetings and company assets.",ngo:"Programs, beneficiaries, donors, activities, monitoring and impact.",retail:"Products, point of sale, stock, customers and sales.",hotel:"Guests, rooms, bookings, housekeeping and payments.",clinic:"Patients, appointments, services, records and payments.",warehouse:"Warehouses, stock movements, receiving, dispatch and suppliers.","service-business":"Clients, service jobs, appointments, staff and payments."};
- return <main className="main" style={{marginLeft:0,width:"100%",maxWidth:1000,margin:"0 auto"}}><div className="topbar"><div><div className="eyebrow">Industry module</div><h1 className="title">{m.name}</h1><div className="subtitle">{o.name}</div></div><Link className="button secondary" href={"/operations?org="+o.id}>Operations</Link></div><div className="card"><div className="section-title">Module workspace</div><p className="subtitle">{descriptions[m.id]||m.description}</p><div className="modules" style={{marginTop:18}}><div className="module"><h3>Overview</h3><p>Operational dashboard for this module.</p></div><div className="module"><h3>Records</h3><p>Manage module-specific records.</p></div><div className="module"><h3>Reports</h3><p>Review activity and performance.</p></div></div></div></main>;
+ if(!enabled)return <main className="main"><div className="card"><h1 className="title">Module not enabled</h1><Link className="button" href={"/settings?org="+o.id}>Settings</Link></div></main>;
+ const {data:rows,error}=await s.from(cfg.table).select("*").eq("organization_id",o.id).order("created_at",{ascending:false}).limit(50);
+ return <main className="main" style={{marginLeft:0,width:"100%",maxWidth:1150,margin:"0 auto"}}><div className="topbar"><div><div className="eyebrow">Industry module</div><h1 className="title">{m.name}</h1><div className="subtitle">{o.name}</div></div><div style={{display:"flex",gap:8}}><Link className="button" href={"/operations/"+m.id+"/new?org="+o.id}>{cfg.links[0]}</Link><Link className="button secondary" href={"/operations?org="+o.id}>Operations</Link></div></div><div className="card"><div className="section-title">{cfg.title}</div>{error?<p className="subtitle">{error.message}</p>:rows?.length?<div className="table">{rows.map((row:any)=><div className="table-row" key={row.id}>{cfg.columns.map(c=><span key={c}>{row[c]===null||row[c]===undefined?"—":typeof row[c]==="boolean"?(row[c]?"Yes":"No"):String(row[c])}</span>)}</div>)}</div>:<p className="subtitle">No records yet. Use the action above to add the first record.</p>}</div></main>;
 }
