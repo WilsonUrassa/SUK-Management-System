@@ -57,7 +57,7 @@ begin
   insert into public.branches(organization_id,name)
   values(new_org,coalesce(nullif(trim(branch_name),''),'Main Branch'));
 
-  foreach module_key in array[
+  foreach module_key in array ARRAY[
     'organizations','users','finance','hr','attendance','documents','reports','notifications'
   ] loop
     insert into public.organization_modules(organization_id,module_key) values(new_org,module_key);
