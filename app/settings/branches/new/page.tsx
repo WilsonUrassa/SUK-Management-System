@@ -1,13 +1,12 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { createClient } from "../../../lib/supabase/client";
+import { FormEvent, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "../../../../lib/supabase/client";
 
-export default function NewBranch() {
-  const params=useSearchParams();
+export default function NewBranch({searchParams}:{searchParams:Promise<{org?:string}>}) {
   const router=useRouter();
-  const org=params.get("org") || "";
+  const [org,setOrg]=useState("");
   const [name,setName]=useState("");
   const [code,setCode]=useState("");
   const [address,setAddress]=useState("");
@@ -16,12 +15,24 @@ export default function NewBranch() {
   const [message,setMessage]=useState("");
   const [loading,setLoading]=useState(false);
 
+  useEffect(() => {
+    let active=true;
+    searchParams.then(params => {
+      if(active) setOrg(params.org || "");
+    });
+    return () => { active=false; };
+  }, [searchParams]);
+
   async function submit(e:FormEvent) {
     e.preventDefault();
+    if(!org) {
+      setMessage("An organization is required.");
+      return;
+    }
     setLoading(true);
     setMessage("");
     const supabase=createClient();
-    const {data,error}=await supabase.rpc("create_branch",{
+    const {error}=await supabase.rpc("create_branch",{
       org_id:org,
       branch_name:name,
       branch_code:code,
@@ -49,8 +60,8 @@ export default function NewBranch() {
       </div>
       {message&&<p className="subtitle">{message}</p>}
       <div style={{display:"flex",gap:8}}>
-        <button className="button" type="submit" disabled={loading}>{loading?"Creating...":"Create branch"}</button>
-        <button className="button secondary" type="button" onClick={()=>router.push("/settings?org="+encodeURIComponent(org))}>Cancel</button>
+        <button className="button" type="submit" disabled={loading||!org}>{loading?"Creating...":"Create branch"}</button>
+        <button className="button secondary" type="button" onClick={()=>router.push(org?"/settings?org="+encodeURIComponent(org):"/settings")}>Cancel</button>
       </div>
     </form>
   </main>;
