@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "../../lib/supabase/server";
 import { modules } from "../../lib/modules";
+import WorkspaceNav from "../_components/WorkspaceNav";
 
 const coreCards = [
   ["People","Manage employees, students, members, clients and contacts.","/people","people"],
@@ -48,6 +49,8 @@ export default async function Dashboard({searchParams}:{searchParams:Promise<{or
         <form action="/auth/signout" method="post"><button className="button secondary" type="submit">Sign out</button></form>
       </div>
     </div>
+
+    <WorkspaceNav org={selected.id}/>
 
     {orgs && orgs.length>1&&<section className="card workspace-switcher"><div><div className="section-title">Your organizations</div><div className="muted">Switch between organizations you manage.</div></div><div className="org-switch-list">{orgs.map((o:{id:string,name:string,organization_type:string})=><Link className={o.id===selected.id?"org-switch active":"org-switch"} href={"/dashboard?org="+o.id} key={o.id}><span className="org-switch-avatar">{o.name.slice(0,1).toUpperCase()}</span><span><strong>{o.name}</strong><small>{o.organization_type}</small></span></Link>)}</div></section>}
 
