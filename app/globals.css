@@ -25,3 +25,5 @@ label{display:grid;gap:7px;font-size:13px;font-weight:700;color:#344054}input,se
 .org-switch.active{border-color:#1769e0;background:#f4f8ff}
 .org-switch strong{display:block;font-size:13px}.org-switch small{display:block;color:#718096;font-size:11px;margin-top:2px}
 .org-switch-avatar{width:28px;height:28px;border-radius:8px;background:#eef3f9;display:grid;place-items:center;font-size:12px;font-weight:800}
+
+.workspace-nav{display:flex;gap:6px;flex-wrap:wrap;margin:-8px 0 24px;padding:6px;background:#eef3f9;border:1px solid #e2e8f0;border-radius:12px}.workspace-nav a{padding:8px 11px;border-radius:8px;color:#475467;font-size:12px;font-weight:700}.workspace-nav a:hover{background:#fff;color:#1769e0;box-shadow:0 1px 4px rgba(16,24,40,.06)}
