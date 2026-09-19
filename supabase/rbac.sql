@@ -87,3 +87,34 @@ on conflict(key) do nothing;
 
 create index if not exists roles_org_idx on public.roles(organization_id);
 create index if not exists role_permissions_permission_idx on public.role_permissions(permission_id);
+
+
+create or replace function public.has_org_permission(org_id uuid, permission_key text)
+returns boolean
+language sql security definer stable
+set search_path = public
+as $$
+  select exists(
+    select 1
+    from public.organization_members m
+    join public.member_roles mr on mr.member_id=m.id
+    join public.role_permissions rp on rp.role_id=mr.role_id
+    join public.permissions p on p.id=rp.permission_id
+    where m.organization_id=org_id
+      and m.user_id=auth.uid()
+      and m.is_active=true
+      and p.key=permission_key
+  )
+  or public.has_org_role(org_id,'Owner');
+$$;
+
+revoke all on function public.has_org_permission(uuid,text) from public;
+grant execute on function public.has_org_permission(uuid,text) to authenticated;
+
+insert into public.permissions(key,description) values
+('operations.view','View industry operations'),
+('operations.manage','Manage industry operations'),
+('branches.view','View branches'),
+('branches.manage','Manage branches'),
+('audit.view','View audit history')
+on conflict(key) do nothing;
