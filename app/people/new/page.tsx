@@ -1,5 +1,5 @@
 "use client";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "../../../lib/supabase/client";
 export default function NewPerson({searchParams}:{searchParams:Promise<{org?:string}>}) {
