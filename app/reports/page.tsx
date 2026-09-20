@@ -3,7 +3,7 @@ import { createClient } from "../../lib/supabase/server";
 import WorkspaceNav from "../_components/WorkspaceNav";
 export default async function Reports({searchParams}:{searchParams:Promise<{org?:string}>}) {
  const p=await searchParams,s=await createClient(),{data:orgs}=await s.rpc("my_organizations"),o=orgs?.find((x:{id:string})=>x.id===p.org)||orgs?.[0];
- if(!o)return <main className="main"><div className="card"><h1 className="title">Reports</h1><Link className="button" href="/onboarding">Create organization</Link></div></main>;
+ if(!o)return <main className="main"><div className="card"><h1 className="title">Reports</h1><Link className="button" href="/onboarding">Create organization</Link></div></main>;\n const {data:canView}=await s.rpc("has_org_permission",{org_id:o.id,permission_key:"reports.view"}); if(!canView)return <main className="main"><div className="card"><h1 className="title">Access denied</h1><p className="subtitle">You do not have permission to view reports.</p></div></main>;
  const [{data:people},{data:finance},{data:inventory}]=await Promise.all([
   s.from("people").select("id").eq("organization_id",o.id),
   s.from("finance_transactions").select("transaction_type,amount").eq("organization_id",o.id),
