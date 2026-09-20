@@ -116,5 +116,7 @@ insert into public.permissions(key,description) values
 ('operations.manage','Manage industry operations'),
 ('branches.view','View branches'),
 ('branches.manage','Manage branches'),
-('audit.view','View audit history')
+('audit.view','View audit history'),
+('people.view','View people records'),
+('people.manage','Manage people records')
 on conflict(key) do nothing;
