@@ -8,7 +8,8 @@ export async function POST(req:Request,{params}:{params:Promise<{module:string}>
  const body=await req.formData(),org=String(body.get("organization_id")||"");
  const {data:orgs}=await s.rpc("my_organizations"); if(!orgs?.some((x:{id:string})=>x.id===org))return NextResponse.json({error:"Organization access denied"},{status:403});
  const {data:enabledModule,error:moduleError}=await s.from("organization_modules").select("module_key").eq("organization_id",org).eq("module_key",module).eq("enabled",true).maybeSingle();
- if(moduleError||!enabledModule)return NextResponse.json({error:"This module is not enabled for the organization"},{status:403});\n const {data:canManage}=await s.rpc("has_org_permission",{org_id:org,permission_key:"operations.manage"}); if(!canManage)return NextResponse.json({error:"You do not have permission to manage operations"},{status:403});
+ if(moduleError||!enabledModule)return NextResponse.json({error:"This module is not enabled for the organization"},{status:403});
+ const {data:canManage}=await s.rpc("has_org_permission",{org_id:org,permission_key:"operations.manage"}); if(!canManage)return NextResponse.json({error:"You do not have permission to manage operations"},{status:403});
  const allowed:Record<string,string[]>={school:["admission_no","class_name","guardian_name"],restaurant:["name","category","price"],office:["title","description","priority"],ngo:["name","objective","location"],retail:["total_amount","payment_method"],hotel:["check_in","check_out","status"],clinic:["provider_name","appointment_at","status"],warehouse:["movement_type","quantity","reference"],"service-business":["title","description","status","scheduled_at","amount"]};
  const data:any={organization_id:org}; for(const k of allowed[module]||[]){const v=body.get(k); if(v!==null&&String(v)!=="")data[k]=v;}
  for(const k of ["price","total_amount","quantity","amount"])if(k in data)data[k]=Number(data[k]);
