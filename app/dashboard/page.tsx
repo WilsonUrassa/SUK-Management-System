@@ -31,7 +31,7 @@ export default async function Dashboard({searchParams}:{searchParams:Promise<{or
   const [{count:peopleCount},{data:finance},{data:stock}]=await Promise.all([
     supabase.from("people").select("id",{count:"exact",head:true}).eq("organization_id",selected.id).eq("is_active",true),
     supabase.from("finance_transactions").select("transaction_type,amount").eq("organization_id",selected.id),
-    supabase.from("inventory_items").select("quantity,unit_cost").eq("organization_id",selected.id).eq("active",true)
+    supabase.from("inventory_items").select("quantity,unit_cost").eq("organization_id",selected.id).eq("is_active",true)
   ]);
   const income=(finance||[]).filter((x:{transaction_type:string})=>x.transaction_type==="income").reduce((n,x)=>n+Number(x.amount||0),0);
   const expense=(finance||[]).filter((x:{transaction_type:string})=>x.transaction_type==="expense").reduce((n,x)=>n+Number(x.amount||0),0);
