@@ -124,3 +124,17 @@ end;
 $$;
 revoke all on function public.write_audit_log(uuid,text,text,uuid,jsonb) from public;
 grant execute on function public.write_audit_log(uuid,text,text,uuid,jsonb) to authenticated;
+
+
+create or replace function public.organization_audit_logs(org_id uuid, result_limit integer default 100)
+returns table(id uuid, action text, entity_type text, entity_id uuid, metadata jsonb, created_at timestamptz)
+language sql security definer stable set search_path=public
+as $$
+  select a.id,a.action,a.entity_type,a.entity_id,a.metadata,a.created_at
+  from public.audit_logs a
+  where a.organization_id=org_id and public.has_org_permission(org_id,'audit.view')
+  order by a.created_at desc
+  limit greatest(1,least(coalesce(result_limit,100),500));
+$$;
+revoke all on function public.organization_audit_logs(uuid,integer) from public;
+grant execute on function public.organization_audit_logs(uuid,integer) to authenticated;
